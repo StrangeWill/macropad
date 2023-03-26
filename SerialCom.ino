@@ -7,9 +7,10 @@
 #include <Arduino.h>
 
 Scene* scene = NULL;
+Menu* menu = NULL;
 Display* display = NULL;
 Communication* communication = NULL;
-auto pixels = Adafruit_NeoPixel(NUM_NEOPIXEL, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
+auto pixels = new Adafruit_NeoPixel(NUM_NEOPIXEL, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
 RotaryEncoder* encoder = new RotaryEncoder(PIN_ROTA, PIN_ROTB, RotaryEncoder::LatchMode::FOUR3);
 
@@ -25,15 +26,10 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(17), checkPosition, CHANGE);
 
   communication = new Communication();
-  pixels.begin();
-  pixels.setBrightness(10);
-  for(int i=0; i< pixels.numPixels(); i++) {
-    pixels.setPixelColor(i, 255, 255, 255); 
-  }
-
-  pixels.show();
+  pixels->begin();
   display = new Display();
-  scene = new Menu(display, encoder);
+  menu = new Menu(display, encoder, pixels);
+  scene = menu;
 }
 
 void loop() {
@@ -48,13 +44,13 @@ void loop() {
 }
 
 void doKeyPress(int keyNum) {
-  switch (keyNum) {
-    default:
-      communication->send("key: " + arduino::String(keyNum));
+  Scene* newScene = scene->input(keyNum);
+  if(newScene) {
+    scene = newScene;
   }
 }
 
 void checkPosition() {
   encoder->tick();
-  scene->input();  
+  scene->input(-1);  
 }

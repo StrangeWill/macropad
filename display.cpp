@@ -12,6 +12,11 @@ Display::Display() {
   _display->clearDisplay();
 }
 
+void Display::clear() {
+  _display->clearDisplay();
+  _display->display();
+}
+
 void Display::printText(arduino::String text, int16_t x, int16_t y) {
   printText(text, x, y, SH110X_WHITE, SH110X_BLACK);
 }

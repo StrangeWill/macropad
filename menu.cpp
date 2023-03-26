@@ -1,34 +1,39 @@
 #include "menu.hpp"
+#include "scene.hpp"
+#include "sleep.hpp"
 #include <RotaryEncoder.h>
+#include <Adafruit_NeoPixel.h>
 #include <array>
 
-typedef struct {
-  arduino::String label;
-} MenuItem;
-
-std::array<MenuItem,6> menuItems {
-  (MenuItem) { .label = "Test - 1" },
-  (MenuItem) { .label = "Test - 2" },
-  (MenuItem) { .label = "Test - 3" },
-  (MenuItem) { .label = "Test - 4" },
-  (MenuItem) { .label = "Test - 5" },
-  (MenuItem) { .label = "Test - 6" }
-};
-
-Menu::Menu(Display* display, RotaryEncoder* encoder) : Scene(display, encoder) {
+Menu::Menu(Display* display, RotaryEncoder* encoder, Adafruit_NeoPixel* pixels) : Scene(display, encoder, pixels) {
+  _menuItems = {
+    (MenuItem) { .label = "Test - 1", .scene = NULL },
+    (MenuItem) { .label = "Test - 2", .scene = NULL },
+    (MenuItem) { .label = "Test - 3", .scene = NULL },
+    (MenuItem) { .label = "Test - 4", .scene = NULL },
+    (MenuItem) { .label = "Test - 5", .scene = NULL },
+    (MenuItem) { .label = "Sleep", .scene = new Sleep(display, encoder, pixels, this) }
+  };
 }
 
 Menu::~Menu() {
 
 }
 
-void Menu::render() {
-  for(int i = 0; i < menuItems.size(); i++) {
-    _display->printText(menuItems[i].label, 0, i * 10, i == _selected ? SH110X_BLACK : SH110X_WHITE, i == _selected ? SH110X_WHITE :SH110X_BLACK);
+void Menu::render() {  
+  _pixels->setBrightness(10);
+  for(int i=0; i< _pixels->numPixels(); i++) {
+    _pixels->setPixelColor(i, 255, 255, 255); 
+  }
+
+  _pixels->show();
+
+  for(int i = 0; i < _menuItems.size(); i++) {
+    _display->printText(_menuItems[i].label, 0, i * 10, i == _selected ? SH110X_BLACK : SH110X_WHITE, i == _selected ? SH110X_WHITE :SH110X_BLACK);
   }
 }
 
-void Menu::input() {
+Scene* Menu::input(int keyNum) {
   int newPos = _encoder->getPosition();
   //communication->send("pos: " + arduino::String(_encoder_pos) + " newPos:" + arduino::String(newPos) + " direction:" + arduino::String((int)encoder.getDirection()));
   if (_encoder_pos != newPos) {
@@ -44,10 +49,16 @@ void Menu::input() {
       }
     }
   }
+
+  if(keyNum == 0) {
+    return _menuItems[_selected].scene; 
+  }
+
+  return NULL;
 }
 
 void Menu::menuUp() {
-  if(_selected == menuItems.size() - 1) {
+  if(_selected == _menuItems.size() - 1) {
     _selected = 0;
   } else {
     _selected++;
@@ -56,7 +67,7 @@ void Menu::menuUp() {
 
 void Menu::menuDown() {
   if(_selected == 0) {
-    _selected = menuItems.size() - 1;
+    _selected = _menuItems.size() - 1;
   } else {
     _selected--;
   }
