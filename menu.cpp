@@ -1,13 +1,14 @@
 #include "menu.hpp"
 #include "scene.hpp"
 #include "sleep.hpp"
+#include "n1mm.hpp"
 #include <RotaryEncoder.h>
 #include <Adafruit_NeoPixel.h>
 #include <array>
 
 Menu::Menu(Display* display, RotaryEncoder* encoder, Adafruit_NeoPixel* pixels) : Scene(display, encoder, pixels) {
   _menuItems = {
-    (MenuItem) { .label = "Test - 1", .scene = NULL },
+    (MenuItem) { .label = "N1MM", .scene = new N1MM(display, encoder, pixels, this) },
     (MenuItem) { .label = "Test - 2", .scene = NULL },
     (MenuItem) { .label = "Test - 3", .scene = NULL },
     (MenuItem) { .label = "Test - 4", .scene = NULL },

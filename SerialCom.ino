@@ -46,6 +46,8 @@ void loop() {
 void doKeyPress(int keyNum) {
   Scene* newScene = scene->input(keyNum);
   if(newScene) {
+    display->clear();
+    delay(1000);
     scene = newScene;
   }
 }
