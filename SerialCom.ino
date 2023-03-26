@@ -2,15 +2,16 @@
 #include <Adafruit_NeoPixel.h>
 #include <RotaryEncoder.h>
 #include "display.hpp"
+#include "menu.hpp"
 #include "communication.hpp"
 #include <Arduino.h>
 
+Scene* scene = NULL;
 Display* display = NULL;
 Communication* communication = NULL;
 auto pixels = Adafruit_NeoPixel(NUM_NEOPIXEL, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
-RotaryEncoder encoder(PIN_ROTA, PIN_ROTB, RotaryEncoder::LatchMode::FOUR3);
-int encoder_pos = 0;
+RotaryEncoder* encoder = new RotaryEncoder(PIN_ROTA, PIN_ROTB, RotaryEncoder::LatchMode::FOUR3);
 
 void setup() {  
   for (uint8_t i=0; i<=12; i++) {
@@ -32,7 +33,7 @@ void setup() {
 
   pixels.show();
   display = new Display();
-  display->drawMenu();
+  scene = new Menu(display, encoder);
 }
 
 void loop() {
@@ -42,9 +43,8 @@ void loop() {
     }
   }
   
-  display->drawMenu();
+  scene->render();
   communication->send("DRAW");
-  delay(50);
 }
 
 void doKeyPress(int keyNum) {
@@ -54,21 +54,7 @@ void doKeyPress(int keyNum) {
   }
 }
 
-void checkPosition() {  
-  encoder.tick();
-  int newPos = encoder.getPosition();
-  communication->send("pos: " + arduino::String(encoder_pos) + " newPos:" + arduino::String(newPos) + " direction:" + arduino::String((int)encoder.getDirection()));
-  if (encoder_pos != newPos) {
-    if(encoder_pos > newPos) {
-      while(encoder_pos > newPos) {
-        display->menuUp();
-        encoder_pos--;
-      }
-    } else {
-      while(encoder_pos < newPos) {
-        display->menuDown();
-        encoder_pos++;
-      }
-    }
-  }
+void checkPosition() {
+  encoder->tick();
+  scene->input();  
 }
