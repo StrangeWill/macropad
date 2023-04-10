@@ -1,6 +1,7 @@
 #include "menu.hpp"
 #include "scene.hpp"
 #include "sleep.hpp"
+#include "serialdebug.hpp"
 #include "n1mm.hpp"
 #include <RotaryEncoder.h>
 #include <Adafruit_NeoPixel.h>
@@ -9,7 +10,7 @@
 Menu::Menu(Display* display, RotaryEncoder* encoder, Adafruit_NeoPixel* pixels) : Scene(display, encoder, pixels) {
   _menuItems = {
     (MenuItem) { .label = "N1MM", .scene = new N1MM(display, encoder, pixels, this) },
-    (MenuItem) { .label = "Test - 2", .scene = NULL },
+    (MenuItem) { .label = "Serial Debug", .scene = new SerialDebug(display, encoder, pixels, this) },
     (MenuItem) { .label = "Test - 3", .scene = NULL },
     (MenuItem) { .label = "Test - 4", .scene = NULL },
     (MenuItem) { .label = "Test - 5", .scene = NULL },

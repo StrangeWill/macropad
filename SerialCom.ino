@@ -40,7 +40,7 @@ void loop() {
   }
   
   scene->render();
-  communication->send("DRAW");
+  //communication->send("DRAW");
 }
 
 void doKeyPress(int keyNum) {
