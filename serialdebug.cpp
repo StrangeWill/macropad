@@ -13,13 +13,13 @@ SerialDebug::~SerialDebug() {
 }
 
 void SerialDebug::render() {
+  _display->printText(arduino::String(Serial.availableForWrite()), 0, 10);
   _display->printText(arduino::String(millis()), 0, 20);
-  _display->printText("               ", 0, 10);
   Serial.write("ZZFA;");
 
   auto input = Serial.readString();
   if(input.length() != 0) {
-    _display->clear();
+    _display->printText("                   ", 0, 0);
     _display->printText(input, 0, 0);
   }
 
